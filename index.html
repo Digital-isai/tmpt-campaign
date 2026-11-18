@@ -229,10 +229,13 @@ select,input[type=search],input[type=text],input[type=tel],input[type=date],inpu
     </div>
     <p class="note" id="impMsg"></p>
   </div>
-  <div class="card">
-    <h2>App PIN</h2>
-    <p class="note">Set panninaa app open pannumbodhu PIN kekkum. (Basic lock thaan; phone-ai yaarkittayum kudukkaadheenga.)</p>
-    <div class="row"><input type="text" inputmode="numeric" maxlength="6" id="pinSet" placeholder="Pudhu PIN (kaali = PIN illa)"><button class="btn" id="pinBtn" style="flex:0 0 auto">Save PIN</button></div>
+  <div class="card" id="pwCard">
+    <h2>Admin password</h2>
+    <p class="note" id="pwNote">Set panninaa app open pannumbodhu password kekkum. Marandhuttaa thirumba edukka mudiyaadhu, ellaa data-vum delete panni thirumba start pannanum. Adhanaala daily Export pannunga.</p>
+    <input type="password" id="pwOld" placeholder="Ippo irukra password" style="margin-bottom:8px">
+    <input type="password" id="pwNew" placeholder="Pudhu password (6+ ezhuthu)" style="margin-bottom:8px">
+    <input type="password" id="pwNew2" placeholder="Pudhu password thirumba" style="margin-bottom:8px">
+    <div class="row"><button class="btn pri" id="pwSave">Password save</button><button class="btn" id="pwRemove">Password edu</button></div>
   </div>
   <div class="card">
     <h2>Pudhu velai file</h2>
@@ -251,7 +254,7 @@ select,input[type=search],input[type=text],input[type=tel],input[type=date],inpu
 </section>
 </main>
 <div class="toast" id="toast"></div>
-<div id="lock" class="hide" style="position:fixed;inset:0;background:#1d2330;z-index:20;display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:12px;padding:20px;width:280px;text-align:center"><h2>PIN podunga</h2><input type="password" inputmode="numeric" id="lockIn" style="font-size:22px;text-align:center"><button class="btn pri" id="lockBtn" style="margin-top:10px;width:100%">Open</button><p class="note" id="lockMsg"></p></div></div>
+<div id="lock" class="hide" style="position:fixed;inset:0;background:#1d2330;z-index:20;display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:12px;padding:20px;width:280px;text-align:center"><h2 id="lockTitle">Password podunga</h2><input type="password" id="lockIn" style="font-size:20px;text-align:center"><button class="btn pri" id="lockBtn" style="margin-top:10px;width:100%">Open</button><p class="note" id="lockMsg"></p><button class="sbtn" id="lockForgot" style="margin-top:12px">Marandhuttaen</button></div></div>
 <div id="undo" class="hide" style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#1d2330;color:#fff;padding:8px 8px 8px 14px;border-radius:10px;display:flex;gap:10px;align-items:center;z-index:10;font-size:14px"><span></span><button style="background:#fff;color:#1d2330;border:0;border-radius:6px;padding:7px 12px;font-weight:700">Undo</button></div>
 
 <script>
@@ -565,13 +568,21 @@ function loadVelai(file,msgEl){var r=new FileReader();r.onload=function(){try{va
     var oldTasks=tasks;voters=f.voters||[];put('voters',voters);tasks={};(f.tasks||[]).forEach(function(t){var o=oldTasks[t.id];if(o&&o.done&&(o.doneT||0)>(t.doneT||0)){t.done=true;t.doneT=o.doneT}tasks[t.id]=t});put('tasks',tasks);
     var fa=f.areas||{};for(var k in fa)areas[k]=fa[k];put('areas',areas);
     var fm=f.marks||{};for(var id in fm)mergeMark(id,{s:fm[id].s,phone:fm[id].phone,v:fm[id].v,notes:getNotes(fm[id]),t:fm[id].t||0,by:fm[id].by||''});saveMarks();
-    prefs.role='vol';prefs.vol=f.vol;prefs.pin=f.pin;prefs.tf=null;prefs.fWard='';prefs.fStreet='';put('prefs',prefs);$('vol').value=f.vol;
+    prefs.role='vol';prefs.vol=f.vol;prefs.pin=f.pin;prefs.apw='';prefs.tf=null;prefs.fWard='';prefs.fStreet='';put('prefs',prefs);$('vol').value=f.vol;
     index();fillSelects();fillAreas();$('hsub').textContent=f.vol+' · '+voters.length+' voters';msgEl.textContent='Vanakkam '+f.vol+'! '+(f.tasks||[]).length+' velai, '+voters.length+' voters.';show('plan')}catch(err){msgEl.textContent='Error: '+err.message}};r.readAsText(file)}
 $('velaiIn').onchange=function(e){if(e.target.files[0])loadVelai(e.target.files[0],$('velaiMsg'))};
 $('velaiIn2').onchange=function(e){if(e.target.files[0])loadVelai(e.target.files[0],$('velaiMsg2'))};
-$('pinBtn').onclick=function(){var p=$('pinSet').value.trim();if(p&&!/^\d{4,6}$/.test(p)){toast('PIN 4-6 number');return}prefs.pin=pinHash(p);put('prefs',prefs);$('pinSet').value='';toast(p?'PIN set aachu':'PIN eduthaachu')};
-function lockCheck(){if(!prefs.pin)return;$('lock').classList.remove('hide');try{$('lockIn').focus()}catch(e){}}
-$('lockBtn').onclick=function(){if(pinHash($('lockIn').value.trim())===prefs.pin){$('lock').classList.add('hide');$('lockIn').value='';$('lockMsg').textContent=''}else{$('lockMsg').textContent='PIN thappu'}};
+async function sha(pw){try{var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('tmpt-admin:'+pw));return 'S'+Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')}catch(e){return 'D'+pinHash('tmpt-admin:'+pw)}}
+async function pwOK(pw,stored){if(!stored)return true;if(stored.charAt(0)==='S'||stored.charAt(0)==='D')return (await sha(pw))===stored;return pinHash(pw)===stored}
+var fails=0;
+function lockCheck(){var vol=prefs.role==='vol',need=vol?prefs.pin:prefs.apw;if(!need)return;$('lockTitle').textContent=vol?'PIN podunga':'Admin password podunga';$('lockIn').setAttribute('inputmode',vol?'numeric':'text');$('lock').classList.remove('hide');try{$('lockIn').focus()}catch(e){}}
+$('lockBtn').onclick=async function(){var vol=prefs.role==='vol',need=vol?prefs.pin:prefs.apw;if(fails>=5){$('lockMsg').textContent='Romba thappu. 30 second wait pannunga.';return}
+  if(await pwOK($('lockIn').value,need)){fails=0;$('lock').classList.add('hide');$('lockIn').value='';$('lockMsg').textContent=''}else{fails++;$('lockMsg').textContent='Thappu ('+fails+'/5)';if(fails>=5)setTimeout(function(){fails=0;$('lockMsg').textContent=''},30000)}};
+$('lockForgot').onclick=function(){var b=$('lockForgot');if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Ellaa data-vum delete aagum. Sure-aa? Thirumba press';return}
+  voters=[];marks={};plan={};areas={};tasks={};vols={};prefs={};['voters','marks','plan','areas','tasks','vols','prefs'].forEach(function(k){put(k,k==='voters'?null:{})});$('lock').classList.add('hide');b.dataset.c='';b.textContent='Marandhuttaen';index();renderStatic();show('dash');toast('Ellaam delete aachu. Thirumba load pannunga.')};
+$('pwSave').onclick=async function(){if(prefs.apw&&!(await pwOK($('pwOld').value,prefs.apw))){toast('Ippo irukra password thappu');return}var a=$('pwNew').value,b2=$('pwNew2').value;if(a.length<6){toast('6 ezhuthu-ku mela venum');return}if(a!==b2){toast('Rendu password-um match aagala');return}
+  prefs.apw=await sha(a);put('prefs',prefs);['pwOld','pwNew','pwNew2'].forEach(function(i){$(i).value=''});toast('Admin password set aachu');renderSettings()};
+$('pwRemove').onclick=async function(){if(!prefs.apw){toast('Password illa');return}if(!(await pwOK($('pwOld').value,prefs.apw))){toast('Ippo irukra password podunga (mela box)');return}prefs.apw='';put('prefs',prefs);$('pwOld').value='';toast('Password eduthaachu');renderSettings()};
 $('lockIn').onkeydown=function(e){if(e.key==='Enter')$('lockBtn').click()};
 
 // ---------- ward data & plan ----------
@@ -582,7 +593,7 @@ function renderStatic(){
 $('planList').addEventListener('change',function(e){var i=e.target.dataset.i;if(i==null)return;plan[i]=e.target.checked;put('plan',plan);renderStatic()});
 
 // ---------- settings ----------
-function renderSettings(){$('voterFileCard').classList.toggle('hide',prefs.role==='vol');var n=Object.keys(marks).length;$('dataInfo').textContent=voters.length?voters.length.toLocaleString('en-IN')+' voters load aagirukku · '+n+' marks save aagirukku.':'Voter file innum load aagala.'}
+function renderSettings(){$('pwCard').classList.toggle('hide',prefs.role==='vol');$('pwOld').classList.toggle('hide',!prefs.apw);$('pwRemove').classList.toggle('hide',!prefs.apw);$('voterFileCard').classList.toggle('hide',prefs.role==='vol');var n=Object.keys(marks).length;$('dataInfo').textContent=voters.length?voters.length.toLocaleString('en-IN')+' voters load aagirukku · '+n+' marks save aagirukku.':'Voter file innum load aagala.'}
 $('expBtn').onclick=function(){var ids=Object.keys(marks);if(!ids.length&&!Object.keys(areas).length&&!Object.keys(tasks).length){toast('Export panna marks illa');return}
   var vmap={};voters.forEach(function(v){vmap[v.id]=v});var tagged={};voters.forEach(function(v){if(areas[hk(v)])tagged[v.id]=1});ids=Object.keys(Object.assign({},tagged,marks));
   var lines=['id,booth_sl,status,voted,phone,note,notes_json,time,by,area,name,rel_name,ward,street,house'];ids.forEach(function(id){var m=marks[id]||{},v=vmap[id]||{};lines.push([id,v.ps||'',m.s||'',m.v?'1':'',m.phone||'',getNotes(m).map(function(n){return n.x}).join(' || '),getNotes(m).length?JSON.stringify(getNotes(m)):'',m.t||'',m.by||'',v.id?(areas[hk(v)]||''):'',v.name||'',v.rname||'',v.ward||'',v.street||'',v.house||''].map(csvCell).join(','))});
