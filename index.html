@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thammampatty Campaign App</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1d2330">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mute:#667085;--line:#e4e7ec;--acc:#1f5eff;
+--S:#16a34a;--N:#d97706;--A:#dc2626;--X:#64748b}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+header{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;padding:10px 14px}
+header h1{margin:0;font-size:17px;font-weight:600}
+header .sub{font-size:12px;opacity:.75}
+nav{display:flex;gap:4px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:52px;z-index:4;overflow-x:auto}
+nav button{flex:1;min-width:80px;white-space:nowrap;border:0;background:none;padding:11px 8px;font-size:14px;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
+nav button.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
+main{max-width:900px;margin:0 auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+h2{font-size:16px;margin:0 0 10px}
+h3{font-size:14px;margin:14px 0 6px;color:var(--mute);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+.kpi b{display:block;font-size:22px}
+.kpi span{font-size:12px;color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--mute);font-weight:600;font-size:12px}
+td.n,th.n{text-align:right}
+.scroll{overflow-x:auto}
+.bar{height:8px;background:#eef2f7;border-radius:4px;overflow:hidden;display:flex;min-width:90px}
+.bar i{display:block;height:100%}
+select,input[type=search],input[type=text],input[type=tel],input[type=date],input[type=password],textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:15px;background:#fff;color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1;min-width:140px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer}
+.btn.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn.danger{color:var(--A);border-color:#f3c2c2}
+.house{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.house .hh{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f9fafb;border-bottom:1px solid var(--line);font-size:13px}
+.house .hh b{font-size:14px}
+.v{padding:8px 12px;border-bottom:1px solid var(--line)}
+.v:last-child{border-bottom:0}
+.vtop{display:flex;align-items:center;gap:8px}
+.vname{flex:1;min-width:0}
+.vname b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis}
+.vname small{color:var(--mute);font-size:12px}
+.st{display:flex;gap:4px}
+.st button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:13px;cursor:pointer;color:var(--mute)}
+.st button.S.on{background:var(--S);color:#fff;border-color:var(--S)}
+.st button.N.on{background:var(--N);color:#fff;border-color:var(--N)}
+.st button.A.on{background:var(--A);color:#fff;border-color:var(--A)}
+.st button.X.on{background:var(--X);color:#fff;border-color:var(--X)}
+.more{display:none;margin-top:8px;gap:6px;flex-direction:column}
+.v.open .more{display:flex}
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;background:#eef2f7;color:var(--mute);margin-left:4px}
+.note{font-size:12px;color:var(--mute);margin-top:4px}
+.empty{text-align:center;color:var(--mute);padding:30px 10px}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.task{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line)}
+.task input{width:20px;height:20px;margin-top:1px}
+.task.done span{text-decoration:line-through;color:var(--mute)}
+.warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:8px;padding:10px;font-size:13px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+.hide{display:none!important}
+.fam{display:flex;gap:4px;align-items:center}
+.fam button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer}
+.fam .S{color:var(--S)}.fam .N{color:var(--N)}.fam .A{color:var(--A)}.fam .X{color:var(--X)}
+.mode{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.mode button{flex:1;border:0;background:#fff;padding:9px;font-size:14px;cursor:pointer}
+.mode button.on{background:var(--acc);color:#fff;font-weight:600}
+.walk .wh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.walk .wh b{font-size:22px}
+.walk .prog{font-size:13px;color:var(--mute)}
+.bigfam{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.bigfam button{height:58px;border-radius:10px;border:0;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+.bigfam .S{background:var(--S)}.bigfam .N{background:var(--N)}.bigfam .A{background:var(--A)}.bigfam .X{background:var(--X)}
+.bigfam small{display:block;font-weight:500;font-size:11px;opacity:.9}
+.navrow{display:flex;gap:8px;margin-top:10px}
+.navrow button{flex:1;height:48px;font-size:16px}
+.nl{list-style:none;margin:0;padding:0}
+.nl li{display:flex;gap:6px;align-items:flex-start;padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.nl li span{flex:1}
+.nl li small{display:block;color:var(--mute);font-size:11px}
+.nl li button,.sbtn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer}
+.sbtn.pri{background:var(--acc);color:#fff;border-color:var(--acc);padding:9px 12px;font-size:14px}
+.prow{display:flex;gap:6px}.prow input{flex:1}
+.az{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.az button{width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:6px;font-weight:600;font-size:14px;cursor:pointer}
+.az button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.jump{display:flex;gap:8px;margin-bottom:8px}
+.jump input{flex:1;font-size:18px;padding:10px}
+.jump button{white-space:nowrap}
+.hits{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+.tile{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 4px;font-size:13px;text-align:center;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile small{display:block;font-size:10px;color:var(--mute)}
+.tile.S{background:#dcfce7;border-color:#86efac}.tile.N{background:#ffedd5;border-color:#fdba74}.tile.A{background:#fee2e2;border-color:#fca5a5}.tile.X{background:#e2e8f0;border-color:#cbd5e1}.tile.P{background:#fef9c3;border-color:#fde047}
+.tile.cur{outline:3px solid var(--acc)}
+.done-badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:#dcfce7;color:#166534;margin-left:6px}
+</style>
+</head>
+<body>
+<header><h1>Thammampatty Campaign</h1><div class="sub" id="hsub">Local body election 2027</div></header>
+<nav id="nav">
+  <button data-v="dash" class="on">Dashboard</button>
+  <button data-v="voters">Voters</button>
+  <button data-v="wards">Ward Data</button>
+  <button data-v="plan">Velai</button>
+  <button data-v="settings">Settings</button>
+</nav>
+<div id="storeWarn" class="hide" style="background:#dc2626;color:#fff;padding:10px 14px;font-size:14px">Indha phone-la data SAVE AAGALA. App-ah Chrome-la open pannunga (WhatsApp / file viewer-la illa). Daily Export kandippa pannunga.</div>
+<main>
+<!-- SETUP -->
+<section id="setup" class="hide">
+  <div class="card">
+    <h2>Voter file load pannunga</h2>
+    <p>"Thammampatty_Voters_App_Data.csv" file-ah select pannunga. Data indha phone/computer-la mattum irukkum, internet-ku pogaadhu.</p>
+    <input type="file" id="csvIn" accept=".csv,text/csv">
+    <p class="note" id="loadMsg"></p>
+  </div>
+  <div class="card">
+    <h2>Volunteer-aa? Velai file load pannunga</h2>
+    <p>Strategist anuppuna "velai_UNGAL-PER.json" file-ah select pannunga. Ungalukku kudutha streets mattum varum.</p>
+    <input type="file" id="velaiIn" accept=".json,application/json">
+    <p class="note" id="velaiMsg"></p>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="v-dash">
+  <div class="card">
+    <div class="row">
+      <div><label class="note">En ward (focus)</label><select id="myWard"></select></div>
+      <div><label class="note">Volunteer per (export-la varum)</label><input type="text" id="vol" placeholder="Ex: Ravi"></div>
+    </div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="card" style="margin-top:12px">
+    <h2>Ward-wise progress</h2>
+    <div class="legend"><span><i style="background:var(--S)"></i>Support</span><span><i style="background:var(--N)"></i>Neutral</span><span><i style="background:var(--A)"></i>Against</span><span><i style="background:var(--X)"></i>Veetla illa</span></div>
+    <div class="scroll"><table id="wardTbl"></table></div>
+  </div>
+  <div class="card"><h2>Polling day: Support, innum vote podaadhavanga</h2><p class="note">Polling naal madhiyam paarunga. Booth-wise. Phone number irundhaa call pannunga.</p><div id="pollList"></div></div>
+  <div class="card"><h2>Save aana problems</h2><p class="note">Indha phone-la save aana ellaa problems-um. Ward select pannirundhaa andha ward mattum.</p><div id="probList"></div></div>
+</section>
+
+<!-- VOTERS -->
+<section id="v-voters" class="hide">
+  <div id="tfBanner" class="hide" style="background:#eef4ff;border:1px solid #c7d7fe;border-radius:8px;padding:8px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px"><span></span><button class="sbtn" id="tfClear">Velai filter edu</button></div>
+  <div class="mode" id="modeSw"><button data-m="find">Per thedu</button><button data-m="walk">Street-wise</button></div>
+  <div class="card" id="findBox"><input type="search" id="fq" placeholder="Per type pannunga (ex: hariharan udaiyar)" style="font-size:18px;padding:12px"><div class="az" id="az"></div><div class="note" id="fcount">Per type pannunga, illa A-Z ezhuthu tap pannunga.</div></div>
+  <div id="find"></div>
+  <div style="text-align:center"><button class="btn hide" id="fmore">Innum kaattu</button></div>
+  <div class="card" id="filterCard">
+    <div class="row">
+      <div><select id="fWard"></select></div>
+      <div><select id="fStreet"></select></div>
+      <div><select id="fArea"></select></div>
+    </div>
+    <div style="margin-top:8px"><input type="search" id="q" placeholder="Per, veedu no, booth-sl (ex: 234-15) search"></div>
+    <div class="chips" id="fStatus"></div>
+    <div class="chips" id="fAge"></div>
+    <div class="note" id="count"></div>
+  </div>
+  <div id="walk" class="walk hide"></div>
+  <div id="list"></div>
+  <div style="text-align:center"><button class="btn hide" id="moreBtn">Innum kaattu</button></div>
+</section>
+
+<!-- WARD DATA -->
+<section id="v-wards" class="hide">
+  <div class="card">
+    <h2>Ward scorecard: party trend</h2>
+    <p class="note">2022 local result, 2024 Lok Sabha lead, 2026 Assembly vote % (DMK / AIADMK / TVK). Booth → ward approximate.</p>
+    <div class="scroll"><table id="scoreTbl"></table></div>
+  </div>
+  <div class="card">
+    <h2>Town trend (vote %)</h2>
+    <div class="scroll"><table>
+      <tr><th>Election</th><th class="n">DMK alliance</th><th class="n">AIADMK</th><th class="n">TVK</th></tr>
+      <tr><td>2021 Assembly</td><td class="n">50.1</td><td class="n">42.6</td><td class="n">-</td></tr>
+      <tr><td>2022 Local body</td><td class="n">50.5</td><td class="n">36.3</td><td class="n">-</td></tr>
+      <tr><td>2024 Lok Sabha</td><td class="n">50.4</td><td class="n">36.9</td><td class="n">-</td></tr>
+      <tr><td>2026 Assembly</td><td class="n">35.0</td><td class="n">28.2</td><td class="n">32.4</td></tr>
+    </table></div>
+    <p class="note">Sources: TNSEC 2022 results; Form 20 (elections.tn.gov.in) 2021, 2024, 2026; ECI 2027 draft roll.</p>
+  </div>
+</section>
+
+<!-- PLAN -->
+<section id="v-plan" class="hide">
+  <div id="volTasks"></div>
+  <div id="adminTasks">
+    <div class="card"><h2>Volunteers</h2>
+      <div class="row"><input type="text" id="vName" placeholder="Per (ex: Ravi)"><input type="text" id="vPin" inputmode="numeric" maxlength="6" placeholder="PIN (4 number)"><button class="btn pri" id="vAdd" style="flex:0 0 auto">+ Serkka</button></div>
+      <div id="volList" style="margin-top:8px"></div>
+    </div>
+    <div class="card"><h2>Pudhu velai kudukka</h2>
+      <div class="row"><select id="tVol"></select><select id="tType">
+        <option>Door-to-door round 1</option><option>Round 2: Neutral (N) mattum</option><option>Round 3: Support (S) reminder</option><option>Form 6 / Form 8 udhavi</option><option>Survey</option><option>Poster / notice</option><option>Street meeting</option><option>Polling day: S voters turnout</option><option>Vera velai</option></select></div>
+      <div class="row" style="margin-top:8px"><select id="tWard"></select><select id="tStreet"></select></div>
+      <div class="row" style="margin-top:8px"><input type="text" inputmode="numeric" id="tFrom" placeholder="Door no mudhal (optional)"><input type="text" inputmode="numeric" id="tTo" placeholder="Door no varai (optional)"><input type="date" id="tDue"></div>
+      <div style="margin-top:8px"><input type="text" id="tNote" placeholder="Note (ex: Jothi Nagar side mattum)"></div>
+      <div style="margin-top:8px"><button class="btn pri" id="tAdd">+ Velai kudu</button> <span class="note" id="tMsg"></span></div>
+    </div>
+    <div class="card"><h2>Ellaa velai</h2><p class="note">Progress: volunteers export panni neenga import pannadhum update aagum.</p><div id="taskTbl"></div></div>
+    <div class="card"><h2>Campaign plan checklist</h2><div id="planList"></div></div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section id="v-settings" class="hide">
+  <div class="card">
+    <h2>Team data serkka (backup / merge)</h2>
+    <p class="note">Ovvoru phone-la mark panradhu andha phone-la mattum save aagum. Daily night "Export" panni strategist-ku anuppunga. Strategist ellaa file-um "Import" panninaa ellaa marks-um onnaa serum (latest mark win aagum).</p>
+    <div class="row" style="margin-top:8px">
+      <button class="btn pri" id="expBtn">Export marks (CSV)</button>
+      <label class="btn" style="text-align:center">Import marks<input type="file" id="impIn" accept=".csv,text/csv" multiple class="hide"></label>
+    </div>
+    <p class="note" id="impMsg"></p>
+  </div>
+  <div class="card">
+    <h2>App PIN</h2>
+    <p class="note">Set panninaa app open pannumbodhu PIN kekkum. (Basic lock thaan; phone-ai yaarkittayum kudukkaadheenga.)</p>
+    <div class="row"><input type="text" inputmode="numeric" maxlength="6" id="pinSet" placeholder="Pudhu PIN (kaali = PIN illa)"><button class="btn" id="pinBtn" style="flex:0 0 auto">Save PIN</button></div>
+  </div>
+  <div class="card">
+    <h2>Pudhu velai file</h2>
+    <p class="note">Strategist pudhu velai anuppunaa inga load pannunga. Ungal marks azhiyaadhu.</p>
+    <input type="file" id="velaiIn2" accept=".json,application/json"><p class="note" id="velaiMsg2"></p>
+  </div>
+  <div class="card" id="voterFileCard">
+    <h2>Voter file</h2>
+    <p class="note" id="dataInfo"></p>
+    <div class="row">
+      <label class="btn" style="text-align:center">Pudhu voter file load<input type="file" id="csvIn2" accept=".csv,text/csv" class="hide"></label>
+      <button class="btn danger" id="wipeBtn">Ellaa data-vum delete</button>
+    </div>
+  </div>
+  <div class="warn">Indha app-la irukra per, phone number ellam campaign-ku mattum. Yaarukkum vikka koodadhu, share panna koodadhu. Election mudinjadhum "Ellaa data-vum delete" pannunga.</div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+<div id="lock" class="hide" style="position:fixed;inset:0;background:#1d2330;z-index:20;display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:12px;padding:20px;width:280px;text-align:center"><h2>PIN podunga</h2><input type="password" inputmode="numeric" id="lockIn" style="font-size:22px;text-align:center"><button class="btn pri" id="lockBtn" style="margin-top:10px;width:100%">Open</button><p class="note" id="lockMsg"></p></div></div>
+<div id="undo" class="hide" style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#1d2330;color:#fff;padding:8px 8px 8px 14px;border-radius:10px;display:flex;gap:10px;align-items:center;z-index:10;font-size:14px"><span></span><button style="background:#fff;color:#1d2330;border:0;border-radius:6px;padding:7px 12px;font-weight:700">Undo</button></div>
+
+<script>
+(function(){
+'use strict';
+// ---------- static aggregate data (no personal data) ----------
+var SCORE=[
+['1, 2','DMK (+37, +77)','DMK 57%','38 / 24 / 34','DMK lean, TVK challenge'],
+['3','DMK (+105)','DMK 75%','59 / 14 / 25','DMK strong'],
+['4','DMK (+100)','DMK 63%','40 / 17 / 37','DMK vs TVK'],
+['5','DMK (+86)','DMK 65%','34 / 25 / 35','Swing, TVK first'],
+['6','AIADMK (+35)','DMK 56%','38 / 24 / 34','Toss-up'],
+['7, 8','Independents','DMK 46%','37 / 31 / 27','Candidate-driven'],
+['9','AIADMK (+11)','DMK 55%','36 / 26 / 36','Toss-up'],
+['10','Congress (+209)','DMK 52%','38 / 31 / 28','DMK alliance lean'],
+['11','AIADMK (+211)','DMK 48%','35 / 28 / 33','3-way'],
+['12','DMK (+297)','DMK 47%','31 / 34 / 32','Toss-up'],
+['13','DMK (+129)','DMK 49%','34 / 32 / 30','Toss-up'],
+['14','DMK (+170)','AIADMK 47%','21 / 46 / 29','AIADMK base'],
+['15','DMK (+145)','AIADMK 48%','29 / 31 / 35','TVK rising'],
+['16','DMK (+325)','DMK 48%','31 / 27 / 37','TVK rising'],
+['17, 18','Congress, DMK','AIADMK 58%','30 / 26 / 41','TVK rising']];
+var PLAN=[
+['Phase 0 (Nov)','Ward, Plan B ward, party / independent mudivu'],
+['Phase 0 (Nov)','Core team 6 per confirm (field, women, digital, accounts)'],
+['Phase 1 (Dec)','Ward street walk + problem photos'],
+['Phase 1 (Dec)','Survey Round 1 (150-200 per)'],
+['Phase 1 (Dec)','Influencer list + opponent study'],
+['Phase 1 (Dec)','Street captains: oru 50-80 veedu-ku oruthar'],
+['Phase 1 (Dec)','Draft roll-la vidupatta supporters-ku Form 6'],
+['Phase 2 (Jan)','3-5 quick wins (street light, drainage, water)'],
+['Phase 2 (Jan)','Door-to-door round 1: 80% veedu contact'],
+['Phase 2 (Jan)','Survey Round 2 + Sunday review'],
+['Phase 3','Nomination documents, tax dues clear, expense account'],
+['Phase 3','5-point ward manifesto'],
+['Phase 4','Door-to-door round 2: Neutral (N) voters mattum'],
+['Phase 4','Door-to-door round 3: Support (S) reminder + booth info'],
+['Phase 5','Booth agents (2 per booth), counting agents'],
+['Phase 5','Polling day: madhiyam S voters turnout check'],
+['After','Thank-you visit; phone, notes delete']];
+var STATUS={S:'Support',N:'Neutral',A:'Against',X:'Veetla illa'};
+
+// ---------- storage ----------
+var DB=null, mem={voters:null,marks:{},kv:{}};
+function openDB(){return new Promise(function(res){try{var r=indexedDB.open('tmpt-campaign',1);r.onupgradeneeded=function(){r.result.createObjectStore('kv')};r.onsuccess=function(){DB=r.result;res()};r.onerror=function(){res()}}catch(e){res()}})}
+function get(k){return new Promise(function(res){if(!DB){res(mem.kv[k]);return}try{var t=DB.transaction('kv').objectStore('kv').get(k);t.onsuccess=function(){res(t.result)};t.onerror=function(){res(mem.kv[k])}}catch(e){res(mem.kv[k])}})}
+var saveOK=true;function storeWarn(){var b=$('storeWarn');if(b)b.classList.toggle('hide',saveOK)}
+function put(k,v){mem.kv[k]=v;if(!DB){saveOK=false;storeWarn();return}try{var tx=DB.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.onerror=function(){saveOK=false;storeWarn()};tx.onabort=function(){saveOK=false;storeWarn()}}catch(e){saveOK=false;storeWarn()}}
+var saveT=null;function saveMarks(){clearTimeout(saveT);saveT=setTimeout(function(){put('marks',marks)},300)}
+
+// ---------- CSV ----------
+function parseCSV(text){var rows=[],row=[],f='',q=false;for(var i=0;i<text.length;i++){var c=text[i];if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else{if(c==='"')q=true;else if(c===','){row.push(f);f=''}else if(c==='\n'){row.push(f);rows.push(row);row=[];f=''}else if(c!=='\r')f+=c}}if(f!==''||row.length){row.push(f);rows.push(row)}return rows}
+function csvCell(v){v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function download(name,text,type){var b=new Blob([(type?'':'﻿')+text],{type:type||'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
+
+// ---------- state ----------
+var voters=[],marks={},byWard={},wards=[],plan={},prefs={},areas={};
+function hk(v){return v.ward+'|'+v.street+'|'+v.house}
+function hnum(h){var m=String(h).match(/\d+/);return m?parseInt(m[0],10):1e9}
+function hcmp(a,b){var x=hnum(a.house)-hnum(b.house);if(x)return x;return a.house<b.house?-1:a.house>b.house?1:0}
+var $=function(id){return document.getElementById(id)};
+var undoT;function showUndo(msg,fn){var u=$('undo');u.querySelector('span').textContent=msg;u.classList.remove('hide');u.querySelector('button').onclick=function(){fn();u.classList.add('hide');toast('Undo aachu')};clearTimeout(undoT);undoT=setTimeout(function(){u.classList.add('hide')},6000)}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},1600)}
+function wkey(w){if(w==='Other')return 999;var n=parseInt(w,10);return isNaN(n)?998:n+(w.indexOf(',')>-1?0.5:0)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+function loadVoterCSV(text){
+  var rows=parseCSV(text);if(!rows.length)return 0;var h=rows[0].map(function(s){return s.replace(/^﻿/,'').trim()});
+  var ix=function(n){return h.indexOf(n)};var need=['id','ward','street','name','house','age','gender'];
+  for(var k=0;k<need.length;k++)if(ix(need[k])<0)throw new Error('Column illa: '+need[k]);
+  var out=[];for(var i=1;i<rows.length;i++){var r=rows[i];if(r.length<h.length-1||!r[ix('id')])continue;
+    var ps=r[ix('id')],ep=ix('epic')>-1?r[ix('epic')]:'';out.push({id:ep||ps,ps:ps,ward:r[ix('ward')],street:r[ix('street')],booth:r[ix('booth')],sl:+r[ix('sl')],name:r[ix('name')],rel:r[ix('relation')]||'',rname:r[ix('rel_name')]||'',house:r[ix('house')],age:+r[ix('age')],g:r[ix('gender')]})}
+  return out;
+}
+function migrate(){var byPs={};voters.forEach(function(v){if(v.ps&&v.ps!==v.id)byPs[v.ps]=v.id});var n=0;
+  Object.keys(marks).forEach(function(k){if(/^\d+-\d+$/.test(k)&&byPs[k]){var to=byPs[k];if(!marks[to])marks[to]=marks[k];delete marks[k];n++}});if(n){put('marks',marks)}return n}
+function index(){
+  byWard={};voters.forEach(function(v){(byWard[v.ward]=byWard[v.ward]||[]).push(v)});
+  wards=Object.keys(byWard).sort(function(a,b){return wkey(a)-wkey(b)});
+}
+
+// ---------- views ----------
+var cur='dash';
+function show(v){var vol=prefs.role==='vol';if(vol&&(v==='dash'||v==='wards'))v='plan';cur=v;
+  [].forEach.call($('nav').children,function(b){b.classList.toggle('hide',vol&&(b.dataset.v==='dash'||b.dataset.v==='wards'))});['dash','voters','wards','plan','settings'].forEach(function(x){$('v-'+x).classList.toggle('hide',x!==v||(!voters.length&&(x==='dash'||x==='voters')))});
+  $('setup').classList.toggle('hide',!!voters.length||!(v==='dash'||v==='voters'||v==='plan'));if(!voters.length&&v==='plan')$('v-plan').classList.add('hide');
+  [].forEach.call($('nav').children,function(b){b.classList.toggle('on',b.dataset.v===v)});
+  if(v==='dash')renderDash();if(v==='voters')renderList(true);if(v==='settings')renderSettings();if(v==='plan'&&voters.length)renderTasks();
+  try{if(location.hash!=='#'+v)history.replaceState(null,'','#'+v)}catch(e){}}
+
+function tally(list){var t={S:0,N:0,A:0,X:0,n:list.length};list.forEach(function(v){var m=marks[v.id];if(m&&m.s)t[m.s]++});t.c=t.S+t.N+t.A+t.X;return t}
+function pct(a,b){return b?Math.round(a/b*100):0}
+function bar(t){var w=function(k){return t.n?(t[k]/t.n*100).toFixed(1)+'%':'0'};return '<div class="bar"><i style="width:'+w('S')+';background:var(--S)"></i><i style="width:'+w('N')+';background:var(--N)"></i><i style="width:'+w('A')+';background:var(--A)"></i><i style="width:'+w('X')+';background:var(--X)"></i></div>'}
+
+function renderDash(){
+  if(!voters.length)return;var my=prefs.myWard||'';var list=my?byWard[my]||[]:voters;var t=tally(list);
+  var young=list.filter(function(v){return v.age<=21}).length, old=list.filter(function(v){return v.age>=60}).length, fem=list.filter(function(v){return v.g==='F'}).length;
+  $('kpis').innerHTML=[
+    [t.n.toLocaleString('en-IN'),(my?'Ward '+my:'Town')+' voters'],
+    [pct(t.c,t.n)+'%','Contacted ('+t.c+')'],
+    [t.S,'Support (S)'],[t.N,'Neutral (N)'],[t.A,'Against (A)'],
+    [pct(t.S,t.S+t.N+t.A)+'%','Support % (S / S+N+A)'],
+    [fem,'Pengal'],[young,'Pudhu voters 18-21'],[old,'60+ vayasu']
+  ].map(function(k){return '<div class="kpi"><b>'+k[0]+'</b><span>'+k[1]+'</span></div>'}).join('');
+  var html='<tr><th>Ward</th><th class="n">Voters</th><th class="n">Contacted</th><th class="n">S</th><th class="n">N</th><th class="n">A</th><th class="n">X</th><th>Progress</th></tr>';
+  wards.forEach(function(w){var x=tally(byWard[w]);html+='<tr'+(w===my?' style="background:#eef4ff"':'')+'><td><b>'+esc(w)+'</b></td><td class="n">'+x.n+'</td><td class="n">'+pct(x.c,x.n)+'%</td><td class="n">'+x.S+'</td><td class="n">'+x.N+'</td><td class="n">'+x.A+'</td><td class="n">'+x.X+'</td><td>'+bar(x)+'</td></tr>'});
+  $('wardTbl').innerHTML=html;
+  var pend=list.filter(function(v){var m=marks[v.id];return m&&m.s==='S'&&!m.v});var vot=list.filter(function(v){var m=marks[v.id];return m&&m.s==='S'&&m.v}).length;
+  var byB={};pend.forEach(function(v){(byB[v.booth]=byB[v.booth]||[]).push(v)});
+  $('pollList').innerHTML='<div class="note">Support '+(pend.length+vot)+' · vote pottaachu '+vot+' · innum '+pend.length+'</div>'+Object.keys(byB).sort(function(a,b){return a-b}).map(function(bk){return '<details><summary>Booth '+esc(bk)+' · '+byB[bk].length+' per</summary><div class="scroll"><table>'+byB[bk].sort(function(a,b){return a.sl-b.sl}).map(function(v){var m=marks[v.id];return '<tr><td>'+esc(v.ps)+'</td><td>'+esc(v.name)+'</td><td>'+esc(v.street)+' · '+esc(v.house)+'</td><td>'+esc(m.phone||'')+'</td></tr>'}).join('')+'</table></div></details>'}).join('');
+  var vm={};voters.forEach(function(v){vm[v.id]=v});var items=[];Object.keys(marks).forEach(function(id){var v=vm[id],ns=getNotes(marks[id]);if(!v||!ns.length)return;if(my&&v.ward!==my)return;ns.forEach(function(n){items.push({v:v,n:n,s:marks[id].s})})});
+  items.sort(function(a,b){return wkey(a.v.ward)-wkey(b.v.ward)||(a.v.street<b.v.street?-1:a.v.street>b.v.street?1:0)||(b.n.t-a.n.t)});
+  $('probList').innerHTML=items.length?'<div class="scroll"><table><tr><th>Ward</th><th>Street / Veedu</th><th>Per</th><th>Problem</th><th>Date</th></tr>'+items.map(function(it){return '<tr><td>'+esc(it.v.ward)+'</td><td>'+esc(it.v.street)+' · '+esc(it.v.house)+'</td><td>'+esc(it.v.name)+(it.s?' <span class="tag">'+it.s+'</span>':'')+'</td><td style="white-space:normal;min-width:160px">'+esc(it.n.x)+'</td><td>'+(it.n.t?new Date(it.n.t).toLocaleDateString('en-IN'):'')+'</td></tr>'}).join('')+'</table></div>':'<div class="note">Innum problems save aagala.</div>';
+}
+
+var fStatus='all',fAge='all',shown=0,PAGE=150,filtered=[];
+function fillSelects(){
+  var o='<option value="">Ellaa wards</option>'+wards.map(function(w){return '<option value="'+esc(w)+'">Ward '+esc(w)+' ('+byWard[w].length+')</option>'}).join('');
+  $('fWard').innerHTML=o;$('myWard').innerHTML=o.replace('Ellaa wards','Town muzhukka');
+  $('myWard').value=prefs.myWard||'';$('fWard').value=prefs.fWard!=null?prefs.fWard:(prefs.myWard||'');fillStreets();
+}
+function fillStreets(){var w=$('fWard').value;var src=w?byWard[w]:voters;var s={};src.forEach(function(v){s[v.street]=(s[v.street]||0)+1});
+  $('fStreet').innerHTML='<option value="">Ellaa streets</option>'+Object.keys(s).sort().map(function(k){return '<option value="'+esc(k)+'">'+esc(k)+' ('+s[k]+')</option>'}).join('');
+  if(prefs.fStreet&&s[prefs.fStreet])$('fStreet').value=prefs.fStreet}
+function chips(el,opts,val,cb){el.innerHTML=opts.map(function(o){return '<button class="chip'+(o[0]===val?' on':'')+'" data-k="'+o[0]+'">'+o[1]+'</button>'}).join('');el.onclick=function(e){var k=e.target.dataset&&e.target.dataset.k;if(k){cb(k)}}}
+function renderChips(){
+  chips($('fStatus'),[['all','Ellaam'],['none','Innum ponala'],['S','S Support'],['N','N Neutral'],['A','A Against'],['X','X Illa']],fStatus,function(k){fStatus=k;renderChips();renderList(true)});
+  chips($('fAge'),[['all','Ellaa vayasu'],['y','18-21'],['m','22-59'],['o','60+'],['F','Pengal'],['M','Aangal']],fAge,function(k){fAge=k;renderChips();renderList(true)});
+}
+function applyFilter(){
+  var w=$('fWard').value,s=$('fStreet').value,q=$('q').value.trim().toLowerCase();
+  var src=w?byWard[w]:voters;
+  filtered=src.filter(function(v){
+    if(s&&v.street!==s)return false;
+    var tf=prefs.tf;if(tf){if(v.ward!==tf.ward)return false;if(tf.street&&v.street!==tf.street)return false;if(!inRange(v,tf))return false}
+    var ar=$('fArea').value;if(ar&&(areas[hk(v)]||'')!==ar)return false;
+    var m=marks[v.id],st=m&&m.s;
+    if(fStatus==='none'&&st)return false; if(fStatus!=='all'&&fStatus!=='none'&&st!==fStatus)return false;
+    if(fAge==='y'&&v.age>21)return false; if(fAge==='m'&&(v.age<22||v.age>59))return false; if(fAge==='o'&&v.age<60)return false;
+    if((fAge==='F'||fAge==='M')&&v.g!==fAge)return false;
+    if(q){var hay=(v.name+' '+v.rname+' '+v.house+' '+v.id+' '+(v.ps||'')+' '+(areas[hk(v)]||'')+' '+((m&&m.note)||'')+' '+((m&&m.phone)||'')).toLowerCase();if(hay.indexOf(q)<0)return false}
+    return true});
+  filtered.sort(function(a,b){return a.street<b.street?-1:a.street>b.street?1:hcmp(a,b)||(a.booth-b.booth)||(a.sl-b.sl)});
+}
+function voterHTML(v){var m=marks[v.id]||{};
+  return '<div class="v" data-id="'+esc(v.id)+'"><div class="vtop"><div class="vname" data-act="open"><b>'+esc(v.name)+'</b><small>'+(v.g==='F'?'F':v.g==='M'?'M':'TG')+' '+v.age+' · '+esc(v.rel?({Father:'Appa',Husband:'Kanavar',Mother:'Amma',Wife:'Manaivi'}[v.rel]||v.rel)+': ':'')+esc(v.rname)+' · '+esc(v.ps||v.id)+(m.v?' · ✓V':'')+(m.phone?' · 📞':'')+(m.note?' · 📝':'')+'</small></div><div class="st">'+
+  ['S','N','A','X'].map(function(k){return '<button class="'+k+(m.s===k?' on':'')+'" data-act="st" data-s="'+k+'" title="'+STATUS[k]+'">'+k+'</button>'}).join('')+
+  '</div></div><div class="more"><button class="sbtn" data-act="voted" style="'+(m.v?'background:#16a34a;color:#fff;border-color:#16a34a':'')+'">'+(m.v?'✓ Vote pottaachu':'Polling day: vote pottaachu? (tap)')+'</button><div class="prow"><input type="tel" data-f="phone" placeholder="Phone (avanga sammadhichaa mattum)" value="'+esc(m.phone||'')+'"><button class="sbtn" data-act="psave">Save</button></div>'+
+  (getNotes(m).length?'<ul class="nl">'+getNotes(m).map(function(n,i){return '<li><span>'+esc(n.x)+'<small>'+(n.t?new Date(n.t).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'')+(n.by?' · '+esc(n.by):'')+'</small></span><button data-act="nedit" data-i="'+i+'">Edit</button><button data-act="ndel" data-i="'+i+'">Delete</button></li>'}).join('')+'</ul>':'')+
+  '<textarea data-nt rows="2" placeholder="Problem / request (jaathi, madham, health, kadan ezhudha koodadhu)"></textarea><div class="prow"><button class="sbtn pri" data-act="nadd" style="flex:1">+ Problem serkka</button></div>'+
+  (m.t?'<div class="note">Last: '+new Date(m.t).toLocaleString('en-IN')+(m.by?' · '+esc(m.by):'')+'</div>':'')+'</div></div>'}
+function getNotes(m){if(!m)return [];if(m.notes)return m.notes;if(m.note)return [{t:m.t||0,x:m.note,by:m.by||''}];return []}
+function setNotes(id,arr){var m=marks[id]||{};m.notes=arr;m.note=arr.map(function(n){return n.x}).join(' | ');marks[id]=m;setMark(id,{})}
+function rerow(id){var el=document.querySelector('.v[data-id="'+CSS.escape(id)+'"]');if(!el)return;var v=voters.find(function(x){return x.id===id});var d=document.createElement('div');d.innerHTML=voterHTML(v);var n=d.firstChild;n.classList.add('open');el.replaceWith(n);return n}
+document.addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b)return;var act=b.dataset.act;if(['nadd','nedit','ndel','psave','voted'].indexOf(act)<0)return;
+  var row=b.closest('.v'),id=row.dataset.id,m=marks[id]||{},arr=getNotes(m).slice(),ta=row.querySelector('textarea[data-nt]');
+  if(act==='voted'){setMark(id,{v:!m.v});rerow(id);toast(marks[id]&&marks[id].v?'Vote pottaachu':'Maathiyaachu');return}
+  if(act==='psave'){setMark(id,{phone:row.querySelector('input[data-f=phone]').value.trim()});rerow(id);toast('Phone save aachu');return}
+  if(act==='nadd'){var txt=ta.value.trim();if(!txt){toast('Mudhalla ezhudhunga');return}var ei=ta.dataset.edit;
+    if(ei!=null&&ei!==''&&arr[+ei]){arr[+ei]={t:Date.now(),x:txt,by:prefs.vol||''};toast('Update aachu')}else{arr.push({t:Date.now(),x:txt,by:prefs.vol||''});toast('Problem serthaachu')}
+    setNotes(id,arr);rerow(id);return}
+  if(act==='nedit'){var i=+b.dataset.i;ta.value=arr[i].x;ta.dataset.edit=i;var ab=row.querySelector('[data-act=nadd]');ab.textContent='Update pannu';ta.focus();return}
+  if(act==='ndel'){if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Sure?';setTimeout(function(){if(b.isConnected){b.dataset.c='';b.textContent='Delete'}},3000);return}
+    arr.splice(+b.dataset.i,1);setNotes(id,arr);rerow(id);toast('Delete aachu')}
+});
+function renderList(reset){
+  if(!voters.length)return;
+  var tfb=$('tfBanner');tfb.classList.toggle('hide',!prefs.tf);if(prefs.tf){tfb.querySelector('span').textContent='Velai: '+prefs.tf.label}
+  var mode=prefs.mode||'find';if(mode==='list')mode='walk';
+  [].forEach.call($('modeSw').children,function(b){b.classList.toggle('on',b.dataset.m===mode)});
+  var find=mode==='find';$('findBox').classList.toggle('hide',!find);$('find').classList.toggle('hide',!find);$('filterCard').classList.toggle('hide',find);
+  if(find){$('walk').classList.add('hide');$('list').innerHTML='';$('moreBtn').classList.add('hide');renderFind();return}
+  var walk=true;
+  $('fAge').classList.toggle('hide',walk);if(walk){fAge='all'}
+  if(walk){applyFilter();$('list').innerHTML='';$('moreBtn').classList.add('hide');$('walk').classList.remove('hide');renderWalk();return}
+  $('walk').classList.add('hide');
+  if(reset){applyFilter();shown=0;$('list').innerHTML=''}
+  var end=Math.min(filtered.length,shown+PAGE),html='',lastKey=null,open=false;
+  for(var i=shown;i<end;i++){var v=filtered[i],key=v.street+'|'+v.house;
+    if(key!==lastKey){if(open)html+='</div>';var fam=filtered.filter(function(x){return x.street===v.street&&x.house===v.house}).length;
+      html+='<div class="house"><div class="hh"><span><b>Veedu '+esc(v.house)+'</b><span class="tag">'+esc(v.street)+'</span>'+(areas[hk(v)]?'<span class="tag">'+esc(areas[hk(v)])+'</span>':'')+'</span><span class="fam">'+fam+' per '+['S','N','A','X'].map(function(k){return '<button class="'+k+'" data-act="fam" data-s="'+k+'" data-key="'+esc(key)+'">'+k+'</button>'}).join('')+'</span></div>';open=true;lastKey=key}
+    html+=voterHTML(v)}
+  if(open)html+='</div>';
+  $('list').insertAdjacentHTML('beforeend',html);shown=end;
+  if(!filtered.length)$('list').innerHTML='<div class="empty">Yaarum illa. Filter maathi paarunga.</div>';
+  $('moreBtn').classList.toggle('hide',shown>=filtered.length);
+  var t=tally(filtered);$('count').textContent=filtered.length+' voters · contacted '+t.c+' · S '+t.S+' · N '+t.N+' · A '+t.A+' · X '+t.X;
+}
+function setMark(id,patch){var m=marks[id]||{};for(var k in patch)m[k]=patch[k];m.t=Date.now();m.by=prefs.vol||'';
+  if(!m.s&&!m.phone&&!m.v&&!m.note&&!(m.notes&&m.notes.length))delete marks[id];else marks[id]=m;saveMarks()}
+function refreshRow(id){var el=document.querySelector('.v[data-id="'+CSS.escape(id)+'"]');if(!el)return;var v=voters.find(function(x){return x.id===id});var wasOpen=el.classList.contains('open');var d=document.createElement('div');d.innerHTML=voterHTML(v);var n=d.firstChild;if(wasOpen)n.classList.add('open');el.replaceWith(n)}
+
+$('list').addEventListener('click',function(e){var t=e.target,act=t.dataset&&t.dataset.act;if(!act)return;
+  if(act==='fam'){var key=t.dataset.key,s0=t.dataset.s;var fam=filtered.filter(function(x){return x.street+'|'+x.house===key});fam.forEach(function(v){setMark(v.id,{s:s0});refreshRow(v.id)});toast(fam.length+' per: '+STATUS[s0]);return}
+  var row=t.closest('.v');if(!row)return;var id=row.dataset.id;
+  if(act==='open'){row.classList.toggle('open');return}
+  if(act==='st'){var m=marks[id]||{};var s=t.dataset.s;setMark(id,{s:m.s===s?'':s});refreshRow(id);var t2=tally(filtered);$('count').textContent=filtered.length+' voters · contacted '+t2.c+' · S '+t2.S+' · N '+t2.N+' · A '+t2.A+' · X '+t2.X}
+});
+$('list').addEventListener('change',function(e){var f=e.target.dataset&&e.target.dataset.f;if(!f)return;var id=e.target.closest('.v').dataset.id;var p={};p[f]=e.target.value.trim();setMark(id,p);toast('Save aachu')});
+
+// ---------- find mode ----------
+function norm(x){return String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+var azL='',fLimit=60;
+function nameCmp(a,b){var x=a.name.toLowerCase(),y=b.name.toLowerCase();if(x!==y)return x<y?-1:1;x=a.rname.toLowerCase();y=b.rname.toLowerCase();return x<y?-1:x>y?1:0}
+function renderAZ(){$('az').innerHTML='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(function(c){return '<button data-l="'+c+'"'+(azL===c?' class="on"':'')+'>'+c+'</button>'}).join('')}
+function renderFind(keep){var raw=$('fq').value.toLowerCase().split(/\s+/).map(norm).filter(Boolean);var q=raw.join('');var el=$('find');if(!keep)fLimit=60;
+  var res;
+  if(q.length>=2){azL='';res=voters.filter(function(v){if(norm(v.name).indexOf(q)>-1||norm(v.rname).indexOf(q)>-1||norm(v.id)===q||norm(v.ps)===q)return true;
+    if(raw.length<2)return false;var hay=norm(v.name)+'|'+norm(v.rname)+'|'+norm(v.street)+'|'+norm(v.house)+'|'+norm(areas[hk(v)])+'|w'+norm(v.ward);return raw.every(function(t){return hay.indexOf(t)>-1})});}
+  else if(azL){res=voters.filter(function(v){return v.name.trim().toUpperCase().charAt(0)===azL})}
+  else{el.innerHTML='';$('fmore').classList.add('hide');renderAZ();$('fcount').textContent='Per type pannunga, illa A-Z ezhuthu tap pannunga.';return}
+  renderAZ();if(q.length>=2){res.sort(function(a,b){var x=norm(a.name).indexOf(q)>-1?0:1,y=norm(b.name).indexOf(q)>-1?0:1;return x-y||nameCmp(a,b)})}else res.sort(nameCmp);
+  $('fcount').textContent=res.length+' per'+(azL?' ("'+azL+'" ezhuthu)':'')+' · A-Z order, appa / kanavar per order-um';
+  el.innerHTML=res.length?'<div class="house">'+res.slice(0,fLimit).map(function(v){return voterHTML(v).replace('</small></div>','</small><small style="display:block;color:var(--acc)">Ward '+esc(v.ward)+' · '+esc(v.street)+' · Veedu '+esc(v.house)+'</small></div>')}).join('')+'</div>':'<div class="empty">Kidaikala. Per-oda mudhal 3-4 ezhuthu mattum type pannunga (ex: "hari"). Illa appa per vechu thedunga.</div>';
+  $('fmore').classList.toggle('hide',res.length<=fLimit)}
+$('az').onclick=function(e){var l=e.target.dataset&&e.target.dataset.l;if(!l)return;azL=azL===l?'':l;$('fq').value='';renderFind();};
+$('fmore').onclick=function(){fLimit+=100;renderFind(true)};
+var fqt;$('fq').oninput=function(){clearTimeout(fqt);fqt=setTimeout(renderFind,200)};
+$('find').addEventListener('click',function(e){var t=e.target;var row=t.closest('.v');if(!row)return;var id=row.dataset.id;
+  if(t.closest('[data-act=open]')){row.classList.toggle('open');return}
+  if(t.dataset.act==='st'){var m=marks[id]||{};setMark(id,{s:m.s===t.dataset.s?'':t.dataset.s});var o=row.classList.contains('open');renderFind(true);var n=document.querySelector('#find .v[data-id="'+CSS.escape(id)+'"]');if(n&&o)n.classList.add('open')}});
+$('find').addEventListener('change',function(e){var f=e.target.dataset&&e.target.dataset.f;if(!f)return;var id=e.target.closest('.v').dataset.id;var p={};p[f]=e.target.value.trim();setMark(id,p);toast('Save aachu')});
+
+// ---------- walk mode ----------
+var houses=[];
+function walkKey(){return [$('fWard').value,$('fStreet').value,$('fArea').value,fStatus,fAge,$('q').value.trim()].join('~')}
+function buildHouses(){houses=[];var last=null;filtered.forEach(function(v){var k=hk(v);if(k!==last){houses.push([]);last=k}houses[houses.length-1].push(v)})}
+function houseDone(h){return h.every(function(v){return marks[v.id]&&marks[v.id].s})}
+function renderWalk(){
+  buildHouses();var W=$('walk');prefs.walkPos=prefs.walkPos||{};var key=walkKey();var i=prefs.walkPos[key]||0;if(i>=houses.length)i=Math.max(0,houses.length-1);
+  if(!houses.length){W.innerHTML='<div class="empty">Indha filter-la veedu illa.</div>';$('count').textContent='';return}
+  var h=houses[i],v0=h[0],done=houses.filter(houseDone).length,area=areas[hk(v0)]||'';
+  var opts=Object.keys(allAreas()).map(function(a){return '<option value="'+esc(a)+'">'}).join('');
+  var jump='<div class="card"><div class="jump"><input type="text" inputmode="numeric" id="jumpIn" placeholder="Veedu no (ex: 45)" autocomplete="off"><button class="btn" id="gridBtn">'+(gridOpen?'Grid moodu':'Ellaa veedu')+'</button></div><div class="hits" id="hits"></div>'+(gridOpen?gridHTML(i):'')+'</div>';
+  W.innerHTML=jump+'<div class="card"><div class="wh"><span><b>Veedu '+esc(v0.house)+'</b>'+(houseDone(h)?'<span class="done-badge">Mudinjadhu</span>':'')+'</span><span class="prog">'+(i+1)+' / '+houses.length+'</span></div>'+
+   '<div class="note">'+esc(v0.street)+' · Ward '+esc(v0.ward)+' · '+h.length+' voters · '+done+' veedu mudinjadhu</div>'+
+   '<div class="bigfam">'+['S','N','A','X'].map(function(k){return '<button class="'+k+'" data-wf="'+k+'">'+k+'<small>'+(k==='X'?'Illa':STATUS[k])+'</small></button>'}).join('')+'</div>'+
+   '<div class="note">Mela: kudumbam muzhukka oru tap, adutha veedu-ku pogum. Keezha: oruthar oruthar-aa maatha.</div></div>'+
+   '<div class="house" id="walkHouse">'+h.map(voterHTML).join('')+'</div>'+
+   '<div class="card"><input type="text" id="areaIn" list="areaList" placeholder="Area tag (ex: Jothi Nagar)" value="'+esc(area)+'"><datalist id="areaList">'+opts+'</datalist>'+
+   '<div class="navrow"><button class="btn" data-wn="-1">&larr; Munnadi</button><button class="btn" data-wn="skip">Adutha pending</button><button class="btn pri" data-wn="1">Adutha &rarr;</button></div></div>';
+  var t=tally(filtered);$('count').textContent=houses.length+' veedu · '+filtered.length+' voters · contacted '+t.c+' · S '+t.S+' · N '+t.N+' · A '+t.A+' · X '+t.X;
+}
+var gridOpen=false;
+function hstat(h){var c={S:0,N:0,A:0,X:0},m=0;h.forEach(function(v){var s=marks[v.id]&&marks[v.id].s;if(s){c[s]++;m++}});if(!m)return '';if(m<h.length)return 'P';var best='S';['N','A','X'].forEach(function(k){if(c[k]>c[best])best=k});return best}
+function gridHTML(cur){return '<div class="legend" style="margin-bottom:6px"><span><i style="background:#86efac"></i>S</span><span><i style="background:#fdba74"></i>N</span><span><i style="background:#fca5a5"></i>A</span><span><i style="background:#cbd5e1"></i>X</span><span><i style="background:#fde047"></i>Paadhi</span><span><i style="background:#fff;border:1px solid #ccc"></i>Ponala</span></div><div class="grid">'+houses.map(function(h,j){return '<div class="tile '+hstat(h)+(j===cur?' cur':'')+'" data-go="'+j+'">'+esc(h[0].house)+'<small>'+h.length+' per</small></div>'}).join('')+'</div>'}
+function goTo(j){prefs.walkPos[walkKey()]=j;put('prefs',prefs);gridOpen=false;renderWalk();var c=document.querySelector('#walk .card:nth-child(2)');if(c)c.scrollIntoView({block:'start'})}
+function showHits(q){var el=$('hits');if(!q){el.innerHTML='';return}q=q.toLowerCase();var res=[];houses.forEach(function(h,j){var hs=String(h[0].house).toLowerCase();if(hs===q||hs.indexOf(q)===0||hs.replace(/[^0-9a-z]/g,' ').split(' ').indexOf(q)>-1)res.push(j)});
+  res.sort(function(a,b){return (String(houses[a][0].house).toLowerCase()===q?0:1)-(String(houses[b][0].house).toLowerCase()===q?0:1)});
+  el.innerHTML=res.length?res.slice(0,15).map(function(j){var h=houses[j];return '<button class="chip" data-go="'+j+'">'+esc(h[0].house)+(($('fStreet').value)?'':' · '+esc(h[0].street.slice(0,14)))+'</button>'}).join(''):'<span class="note">Indha number-la veedu illa</span>';
+  if(res.length===1&&String(houses[res[0]][0].house).toLowerCase()===q){}}
+function walkGo(d){var key=walkKey(),i=prefs.walkPos[key]||0;
+  if(d==='skip'){for(var j=i+1;j<houses.length;j++){if(!houseDone(houses[j])){i=j;break}}if(j>=houses.length){toast('Pending veedu illa');return}}
+  else i=Math.min(Math.max(0,i+d),houses.length-1);
+  prefs.walkPos[key]=i;put('prefs',prefs);renderWalk();window.scrollTo(0,0)}
+$('walk').addEventListener('input',function(e){if(e.target.id==='jumpIn')showHits(e.target.value.trim())});
+$('walk').addEventListener('keydown',function(e){if(e.target.id==='jumpIn'&&e.key==='Enter'){var f=$('hits').querySelector('[data-go]');if(f)goTo(+f.dataset.go)}});
+$('walk').addEventListener('click',function(e){var g=e.target.closest('[data-go]');if(g){goTo(+g.dataset.go);return}
+  if(e.target.id==='gridBtn'){if(!gridOpen&&houses.length>600){toast('Mudhalla street select pannunga');return}gridOpen=!gridOpen;renderWalk();return}
+  var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.wf){var key=walkKey(),i=prefs.walkPos[key]||0,h=houses[i];var prev=h.map(function(v){return [v.id,marks[v.id]?JSON.parse(JSON.stringify(marks[v.id])):null]});
+    var anyMarked=h.some(function(v){return marks[v.id]&&marks[v.id].s});h.forEach(function(v){if(anyMarked&&marks[v.id]&&marks[v.id].s&&h.length>1&&!b.dataset.force)return;setMark(v.id,{s:b.dataset.wf})});
+    showUndo(h.length+' per: '+STATUS[b.dataset.wf],function(){prev.forEach(function(p){if(p[1])marks[p[0]]=p[1];else delete marks[p[0]]});saveMarks();prefs.walkPos[key]=i;put('prefs',prefs);renderWalk()});renderWalk();setTimeout(function(){walkGo(1)},700);return}
+  if(b.dataset.wn){walkGo(b.dataset.wn==='skip'?'skip':+b.dataset.wn);return}
+  var row=b.closest('.v');if(row&&b.dataset.act==='st'){var id=row.dataset.id,m=marks[id]||{};setMark(id,{s:m.s===b.dataset.s?'':b.dataset.s});refreshRow(id)}});
+$('walk').addEventListener('click',function(e){var t=e.target.closest('[data-act=open]');if(t)t.closest('.v').classList.toggle('open')});
+$('walk').addEventListener('change',function(e){
+  if(e.target.id==='areaIn'){var key=walkKey(),h=houses[prefs.walkPos[key]||0];var val=e.target.value.trim();if(val)areas[hk(h[0])]=val;else delete areas[hk(h[0])];put('areas',areas);fillAreas();toast('Area save aachu');return}
+  var f=e.target.dataset&&e.target.dataset.f;if(!f)return;var id=e.target.closest('.v').dataset.id;var p={};p[f]=e.target.value.trim();setMark(id,p);toast('Save aachu')});
+function allAreas(){var o={};for(var k in areas)o[areas[k]]=(o[areas[k]]||0)+1;return o}
+function fillAreas(){var o=allAreas(),cur=$('fArea').value;$('fArea').innerHTML='<option value="">Ellaa areas</option>'+Object.keys(o).sort().map(function(a){return '<option value="'+esc(a)+'">'+esc(a)+' ('+o[a]+' veedu)</option>'}).join('');if(o[cur])$('fArea').value=cur}
+$('modeSw').onclick=function(e){var m=e.target.dataset&&e.target.dataset.m;if(!m)return;prefs.mode=m;put('prefs',prefs);renderList(true)};
+$('fArea').onchange=function(){renderList(true)};
+
+// ---------- velai (tasks) ----------
+var tasks={},vols={};
+function inRange(v,t){if(!t.from&&!t.to)return true;var n=hnum(v.house);if(n===1e9)return false;if(t.from&&n<+t.from)return false;if(t.to&&n>+t.to)return false;return true}
+function scope(t){return voters.filter(function(v){return v.ward===t.ward&&(!t.street||v.street===t.street)&&inRange(v,t)})}
+function tProg(t){var poll=t.type.indexOf('Polling')===0,vs=scope(t),H={},D={},c=0;vs.forEach(function(v){var k=hk(v);H[k]=1;var m=marks[v.id];var ok=poll?(m&&m.v):(m&&m.s);if(ok){c++;D[k]=1}});var h=Object.keys(H).length,d=Object.keys(D).length;return {n:vs.length,h:h,d:d,c:c,p:h?Math.round(d/h*100):0}}
+function tPlace(t){return 'Ward '+t.ward+(t.street?' · '+t.street:' (ellaa streets)')+((t.from||t.to)?' · door '+(t.from||'?')+'-'+(t.to||'?'):'')}
+function pinHash(p){var h=5381;p=String(p||'');for(var i=0;i<p.length;i++)h=((h<<5)+h+p.charCodeAt(i))>>>0;return p?String(h):''}
+function taskList(){return Object.keys(tasks).map(function(k){return tasks[k]}).sort(function(a,b){var x=(a.done?1:0)-(b.done?1:0);if(x)return x;var da=a.due||'9999',db=b.due||'9999';return da<db?-1:da>db?1:0})}
+function renderTasks(){var vol=prefs.role==='vol';$('adminTasks').classList.toggle('hide',vol);$('volTasks').classList.toggle('hide',!vol);
+  var list=taskList();
+  if(vol){$('volTasks').innerHTML='<div class="card"><h2>Vanakkam '+esc(prefs.vol||'')+'</h2><p class="note">Ungalukku kudutha velai. "Start" press pannaa andha idathu veedugal mattum varum. Daily night Settings-la "Export marks" panni strategist-ku anuppunga.</p></div>'+
+    (list.length?list.map(function(t){var g=tProg(t);return '<div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+esc(t.type)+'</b>'+(t.done?'<span class="done-badge">Mudinjadhu</span>':(t.due?'<span class="tag">'+esc(t.due)+' kulla</span>':''))+'</div><div class="note">'+esc(tPlace(t))+(t.note?' · '+esc(t.note):'')+'</div>'+
+      '<div style="margin:8px 0" class="bar"><i style="width:'+g.p+'%;background:var(--S)"></i></div><div class="note">'+g.d+' / '+g.h+' veedu mudinjadhu ('+g.p+'%) · '+g.c+' / '+g.n+' voters</div>'+
+      '<div class="navrow"><button class="btn pri" data-tstart="'+t.id+'">Start / Thodaru</button><button class="btn" data-tdone="'+t.id+'">'+(t.done?'Thirumba open':'Mudinjadhu ✓')+'</button></div></div>'}).join(''):'<div class="card empty">Innum velai varala.</div>');return}
+  $('volList').innerHTML=Object.keys(vols).length?Object.keys(vols).sort().map(function(n){var c=list.filter(function(t){return t.vol===n}).length;return '<div style="display:flex;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)"><b style="flex:1">'+esc(n)+'</b><span class="note">'+c+' velai</span><button class="sbtn pri" data-vexp="'+esc(n)+'">Velai file anuppa</button><button class="sbtn" data-vdel="'+esc(n)+'">X</button></div>'}).join(''):'<div class="note">Mudhalla volunteer serunga.</div>';
+  var keep=$('tVol').value;$('tVol').innerHTML=Object.keys(vols).sort().map(function(n){return '<option>'+esc(n)+'</option>'}).join('')||'<option value="">Volunteer illa</option>';if(vols[keep])$('tVol').value=keep;
+  if(!$('tWard').options.length){$('tWard').innerHTML=wards.map(function(w){return '<option value="'+esc(w)+'">Ward '+esc(w)+'</option>'}).join('');fillTStreets()}
+  $('taskTbl').innerHTML=list.length?'<div class="scroll"><table><tr><th>Volunteer</th><th>Velai</th><th>Idam</th><th>Due</th><th>Progress</th><th></th></tr>'+list.map(function(t){var g=tProg(t);return '<tr'+(t.done?' style="opacity:.6"':'')+'><td>'+esc(t.vol)+'</td><td>'+esc(t.type)+'</td><td style="white-space:normal;min-width:140px">'+esc(tPlace(t))+'</td><td>'+esc(t.due||'')+'</td><td>'+g.d+'/'+g.h+' veedu ('+g.p+'%)'+(t.done?' ✓':'')+'</td><td><button class="sbtn" data-tdel="'+t.id+'">X</button></td></tr>'}).join('')+'</table></div>':'<div class="note">Innum velai kudukala.</div>';
+}
+function fillTStreets(){var w=$('tWard').value,sx={};(byWard[w]||[]).forEach(function(v){sx[v.street]=(sx[v.street]||0)+1});$('tStreet').innerHTML='<option value="">Ellaa streets</option>'+Object.keys(sx).sort().map(function(k){return '<option value="'+esc(k)+'">'+esc(k)+' ('+sx[k]+')</option>'}).join('')}
+$('tWard').onchange=fillTStreets;
+$('vAdd').onclick=function(){var n=$('vName').value.trim(),p=$('vPin').value.trim();if(!n){toast('Per podunga');return}if(!/^\d{4,6}$/.test(p)){toast('PIN 4-6 number venum');return}vols[n]={pin:pinHash(p)};put('vols',vols);$('vName').value='';$('vPin').value='';renderTasks();toast(n+' serthaachu')};
+$('tAdd').onclick=function(){var vol=$('tVol').value;if(!vol){toast('Mudhalla volunteer serunga');return}var t={id:'t'+Date.now().toString(36),vol:vol,type:$('tType').value,ward:$('tWard').value,street:$('tStreet').value,from:$('tFrom').value.trim(),to:$('tTo').value.trim(),due:$('tDue').value,note:$('tNote').value.trim(),done:false,t:Date.now()};
+  if(!scope(t).length){toast('Indha idathula voters illa, check pannunga');return}tasks[t.id]=t;put('tasks',tasks);$('tFrom').value='';$('tTo').value='';$('tNote').value='';$('tMsg').textContent=vol+'-ku velai kuduthaachu. "Velai file anuppa" press pannunga.';renderTasks()};
+$('v-plan').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.tdel){if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Sure?';return}delete tasks[b.dataset.tdel];put('tasks',tasks);renderTasks();return}
+  if(b.dataset.vdel){if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Sure?';return}delete vols[b.dataset.vdel];put('vols',vols);renderTasks();return}
+  if(b.dataset.vexp){var n=b.dataset.vexp,my=taskList().filter(function(t){return t.vol===n});if(!my.length){toast(n+'-ku velai illa');return}
+    var ids={},sub=[],ar={},mk={};my.forEach(function(t){scope(t).forEach(function(v){if(!ids[v.id]){ids[v.id]=1;sub.push(v);if(areas[hk(v)])ar[hk(v)]=areas[hk(v)];if(marks[v.id])mk[v.id]=marks[v.id]}})});
+    var file={kind:'tmpt-velai',v:1,vol:n,pin:vols[n].pin,created:Date.now(),tasks:my,voters:sub,areas:ar,marks:mk};
+    download('velai_'+n.replace(/\W+/g,'_')+'.json',JSON.stringify(file),'application/json');toast(n+': '+sub.length+' voters, '+my.length+' velai');return}
+  if(b.dataset.tstart){var t=tasks[b.dataset.tstart];prefs.tf={ward:t.ward,street:t.street,from:t.from,to:t.to,label:t.type+' · '+tPlace(t)};prefs.mode='walk';prefs.fWard=t.ward;prefs.fStreet=t.street||'';put('prefs',prefs);fStatus=t.type.indexOf('Neutral')>-1?'N':t.type.indexOf('Support')>-1||t.type.indexOf('Polling')===0?'S':'all';renderChips();fillSelects();show('voters');return}
+  if(b.dataset.tdone){var t2=tasks[b.dataset.tdone];t2.done=!t2.done;t2.doneT=Date.now();put('tasks',tasks);renderTasks();toast(t2.done?'Super! Mudinjadhu':'Thirumba open');return}
+});
+$('tfClear').onclick=function(){prefs.tf=null;put('prefs',prefs);renderList(true)};
+function loadVelai(file,msgEl){var r=new FileReader();r.onload=function(){try{var f=JSON.parse(String(r.result));if(f.kind!=='tmpt-velai')throw new Error('Idhu velai file illa');
+    var oldTasks=tasks;voters=f.voters||[];put('voters',voters);tasks={};(f.tasks||[]).forEach(function(t){var o=oldTasks[t.id];if(o&&o.done&&(o.doneT||0)>(t.doneT||0)){t.done=true;t.doneT=o.doneT}tasks[t.id]=t});put('tasks',tasks);
+    var fa=f.areas||{};for(var k in fa)areas[k]=fa[k];put('areas',areas);
+    var fm=f.marks||{};for(var id in fm)mergeMark(id,{s:fm[id].s,phone:fm[id].phone,v:fm[id].v,notes:getNotes(fm[id]),t:fm[id].t||0,by:fm[id].by||''});saveMarks();
+    prefs.role='vol';prefs.vol=f.vol;prefs.pin=f.pin;prefs.tf=null;prefs.fWard='';prefs.fStreet='';put('prefs',prefs);$('vol').value=f.vol;
+    index();fillSelects();fillAreas();$('hsub').textContent=f.vol+' · '+voters.length+' voters';msgEl.textContent='Vanakkam '+f.vol+'! '+(f.tasks||[]).length+' velai, '+voters.length+' voters.';show('plan')}catch(err){msgEl.textContent='Error: '+err.message}};r.readAsText(file)}
+$('velaiIn').onchange=function(e){if(e.target.files[0])loadVelai(e.target.files[0],$('velaiMsg'))};
+$('velaiIn2').onchange=function(e){if(e.target.files[0])loadVelai(e.target.files[0],$('velaiMsg2'))};
+$('pinBtn').onclick=function(){var p=$('pinSet').value.trim();if(p&&!/^\d{4,6}$/.test(p)){toast('PIN 4-6 number');return}prefs.pin=pinHash(p);put('prefs',prefs);$('pinSet').value='';toast(p?'PIN set aachu':'PIN eduthaachu')};
+function lockCheck(){if(!prefs.pin)return;$('lock').classList.remove('hide');try{$('lockIn').focus()}catch(e){}}
+$('lockBtn').onclick=function(){if(pinHash($('lockIn').value.trim())===prefs.pin){$('lock').classList.add('hide');$('lockIn').value='';$('lockMsg').textContent=''}else{$('lockMsg').textContent='PIN thappu'}};
+$('lockIn').onkeydown=function(e){if(e.key==='Enter')$('lockBtn').click()};
+
+// ---------- ward data & plan ----------
+function renderStatic(){
+  $('scoreTbl').innerHTML='<tr><th>Ward</th><th>2022 local</th><th>2024 LS</th><th>2026 D / A / T</th><th>Nilamai</th></tr>'+SCORE.map(function(r){return '<tr>'+r.map(function(c,i){return '<td>'+(i===0?'<b>'+c+'</b>':esc(c))+'</td>'}).join('')+'</tr>'}).join('');
+  $('planList').innerHTML=PLAN.map(function(p,i){var d=!!plan[i];return '<label class="task'+(d?' done':'')+'"><input type="checkbox" data-i="'+i+'"'+(d?' checked':'')+'><span><small class="note">'+p[0]+'</small><br>'+esc(p[1])+'</span></label>'}).join('');
+}
+$('planList').addEventListener('change',function(e){var i=e.target.dataset.i;if(i==null)return;plan[i]=e.target.checked;put('plan',plan);renderStatic()});
+
+// ---------- settings ----------
+function renderSettings(){$('voterFileCard').classList.toggle('hide',prefs.role==='vol');var n=Object.keys(marks).length;$('dataInfo').textContent=voters.length?voters.length.toLocaleString('en-IN')+' voters load aagirukku · '+n+' marks save aagirukku.':'Voter file innum load aagala.'}
+$('expBtn').onclick=function(){var ids=Object.keys(marks);if(!ids.length&&!Object.keys(areas).length&&!Object.keys(tasks).length){toast('Export panna marks illa');return}
+  var vmap={};voters.forEach(function(v){vmap[v.id]=v});var tagged={};voters.forEach(function(v){if(areas[hk(v)])tagged[v.id]=1});ids=Object.keys(Object.assign({},tagged,marks));
+  var lines=['id,booth_sl,status,voted,phone,note,notes_json,time,by,area,name,rel_name,ward,street,house'];ids.forEach(function(id){var m=marks[id]||{},v=vmap[id]||{};lines.push([id,v.ps||'',m.s||'',m.v?'1':'',m.phone||'',getNotes(m).map(function(n){return n.x}).join(' || '),getNotes(m).length?JSON.stringify(getNotes(m)):'',m.t||'',m.by||'',v.id?(areas[hk(v)]||''):'',v.name||'',v.rname||'',v.ward||'',v.street||'',v.house||''].map(csvCell).join(','))});
+  if(prefs.role==='vol')Object.keys(tasks).forEach(function(k){var t=tasks[k];lines.push(['task:'+t.id,'',t.done?'done':'','','','','',t.doneT||0,prefs.vol||'','','','','','',''].map(csvCell).join(','))});
+  var d=new Date(),stamp=d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2);
+  download('marks_'+(prefs.vol||'team').replace(/\W+/g,'_')+'_'+stamp+'.csv',lines.join('\n'));toast(ids.length+' marks export aachu')};
+function mergeMark(id,o){var cur=marks[id]||{},t=+o.t||0,ct=cur.t||0,newer=t>ct;
+  var m={s:cur.s||'',phone:cur.phone||'',v:cur.v||false,t:Math.max(t,ct),by:newer?o.by:cur.by};
+  if(o.s&&(newer||!cur.s))m.s=o.s; if(o.phone&&(newer||!cur.phone))m.phone=o.phone; if(o.v)m.v=true;
+  var seen={},arr=[];getNotes(cur).concat(o.notes||[]).forEach(function(n){var k=n.x+'|'+(n.t||0);if(!seen[k]){seen[k]=1;arr.push(n)}});arr.sort(function(a,b){return (a.t||0)-(b.t||0)});
+  if(arr.length){m.notes=arr;m.note=arr.map(function(n){return n.x}).join(' | ')}
+  var changed=JSON.stringify(cur)!==JSON.stringify(m);if(changed)marks[id]=m;return changed?(marks[id]&&ct?'u':'a'):''}
+$('impIn').onchange=function(e){var files=[].slice.call(e.target.files);var added=0,upd=0,done=0,warn='';var byPs={};voters.forEach(function(v){byPs[v.ps]=v.id});
+  files.forEach(function(f){var r=new FileReader();r.onload=function(){var rows=parseCSV(String(r.result));var h=rows[0].map(function(s){return s.replace(/^﻿/,'').trim()});
+    if(h.indexOf('status')<0){warn+=f.name+': idhu marks file illa. ';}else{
+    for(var i=1;i<rows.length;i++){var o={};h.forEach(function(k,j){o[k]=rows[i][j]});if(!o.id)continue;var id=o.id;if(id.indexOf('task:')===0){var tk=tasks[id.slice(5)];if(tk&&(+o.time||0)>=(tk.doneT||0)){tk.done=o.status==='done';tk.doneT=+o.time||0}continue}if(/^\d+-\d+$/.test(id)&&byPs[id])id=byPs[id];
+      if(o.area){var vv=voters.find(function(x){return x.id===id});if(vv)areas[hk(vv)]=o.area}
+      var notes=[];if(o.notes_json){try{notes=JSON.parse(o.notes_json)}catch(err){}}else if(o.note){notes=o.note.split(' || ').map(function(x){return {t:+o.time||0,x:x,by:o.by||''}})}
+      if(+o.time>Date.now()+864e5)warn+='Oru phone-la date/time thappu ('+(o.by||f.name)+'). ';
+      var res=mergeMark(id,{s:o.status||'',phone:o.phone||'',v:o.voted==='1',notes:notes,t:+o.time||0,by:o.by||''});if(res==='a')added++;else if(res==='u')upd++}}
+    if(++done===files.length){saveMarks();put('areas',areas);put('tasks',tasks);fillAreas();$('impMsg').textContent=added+' pudhu, '+upd+' update aachu. Phone, problems ellaam serthaachu (ondhum azhiyaadhu). '+warn;renderSettings()}};r.readAsText(f)});e.target.value=''};
+function handleVoterFile(file,msgEl){var r=new FileReader();msgEl.textContent='Load aagudhu...';r.onload=function(){try{var v=loadVoterCSV(String(r.result));if(!v.length)throw new Error('Rows illa');voters=v;put('voters',v);prefs.role='admin';prefs.tf=null;put('prefs',prefs);index();var mg=migrate();fillSelects();fillAreas();if(mg)toast(mg+' marks pudhu ID-ku maathiyaachu');renderChips();msgEl.textContent=v.length.toLocaleString('en-IN')+' voters load aachu.';$('hsub').textContent=v.length.toLocaleString('en-IN')+' voters · Local body election 2027';show('dash')}catch(err){msgEl.textContent='Error: '+err.message}};r.readAsText(file)}
+$('csvIn').onchange=function(e){if(e.target.files[0])handleVoterFile(e.target.files[0],$('loadMsg'))};
+$('csvIn2').onchange=function(e){if(e.target.files[0])handleVoterFile(e.target.files[0],$('dataInfo'))};
+$('wipeBtn').onclick=function(){var b=$('wipeBtn');if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Confirm: ellaam delete';setTimeout(function(){b.dataset.c='';b.textContent='Ellaa data-vum delete'},4000);return}
+  voters=[];marks={};plan={};areas={};put('voters',null);put('marks',{});put('plan',{});put('areas',{});prefs={};put('prefs',{});tasks={};vols={};put('tasks',{});put('vols',{});index();b.dataset.c='';b.textContent='Ellaa data-vum delete';toast('Ellaam delete aachu');$('hsub').textContent='Local body election 2027';renderStatic();show('dash')};
+
+// ---------- wiring ----------
+$('nav').onclick=function(e){var v=e.target.dataset&&e.target.dataset.v;if(v)show(v)};
+$('fWard').onchange=function(){prefs.fWard=this.value;prefs.fStreet='';put('prefs',prefs);fillStreets();renderList(true)};
+$('fStreet').onchange=function(){prefs.fStreet=this.value;put('prefs',prefs);renderList(true)};
+var qt;$('q').oninput=function(){clearTimeout(qt);qt=setTimeout(function(){renderList(true)},200)};
+$('moreBtn').onclick=function(){renderList(false)};
+$('myWard').onchange=function(){prefs.myWard=this.value;put('prefs',prefs);renderDash()};
+$('vol').onchange=function(){prefs.vol=this.value.trim();put('prefs',prefs)};
+window.addEventListener('hashchange',function(){var h=location.hash.slice(1);if(h&&h!==cur&&$('v-'+h))show(h)});
+
+openDB().then(function(){try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}if(!DB){saveOK=false;storeWarn()}return Promise.all([get('voters'),get('marks'),get('plan'),get('prefs'),get('areas'),get('tasks'),get('vols')])}).then(function(r){
+  voters=r[0]||[];marks=r[1]||{};plan=r[2]||{};prefs=r[3]||{};areas=r[4]||{};tasks=r[5]||{};vols=r[6]||{};lockCheck();fillAreas();$('vol').value=prefs.vol||'';
+  index();if(migrate())toast('Pazhaya marks pudhu ID-ku maathiyaachu');if(voters.length){fillSelects();$('hsub').textContent=voters.length.toLocaleString('en-IN')+' voters · Local body election 2027'}
+  renderChips();renderStatic();var h=location.hash.slice(1);show(h&&$('v-'+h)?h:(prefs.role==='vol'?'plan':'dash'))});
+})();
+</script>
+<script>if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("sw.js").catch(function(){})}</script>
+</body>
+</html>
