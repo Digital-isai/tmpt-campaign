@@ -242,6 +242,11 @@ select,input[type=search],input[type=text],input[type=tel],input[type=date],inpu
     <p class="note">Strategist pudhu velai anuppunaa inga load pannunga. Ungal marks azhiyaadhu.</p>
     <input type="file" id="velaiIn2" accept=".json,application/json"><p class="note" id="velaiMsg2"></p>
   </div>
+  <div class="card hide" id="toAdminCard">
+    <h2>Admin mode-ku thirumba poga</h2>
+    <p class="note">Idhu strategist (admin) phone-na mattum. Full voter file (Thammampatty_Voters_App_Data.csv) select pannunga. Ippo irukra marks azhiyaadhu.</p>
+    <input type="file" id="toAdminIn" accept=".csv,text/csv"><p class="note" id="toAdminMsg"></p>
+  </div>
   <div class="card" id="voterFileCard">
     <h2>Voter file</h2>
     <p class="note" id="dataInfo"></p>
@@ -565,12 +570,21 @@ $('v-plan').addEventListener('click',function(e){var b=e.target.closest('button'
   if(b.dataset.tdone){var t2=tasks[b.dataset.tdone];t2.done=!t2.done;t2.doneT=Date.now();put('tasks',tasks);renderTasks();toast(t2.done?'Super! Mudinjadhu':'Thirumba open');return}
 });
 $('tfClear').onclick=function(){prefs.tf=null;put('prefs',prefs);renderList(true)};
-function loadVelai(file,msgEl){var r=new FileReader();r.onload=function(){try{var f=JSON.parse(String(r.result));if(f.kind!=='tmpt-velai')throw new Error('Idhu velai file illa');
+var pendingVelai=null;
+function loadVelai(file,msgEl,confirmed){if(prefs.role!=='vol'&&voters.length&&!confirmed){pendingVelai=[file,msgEl];msgEl.innerHTML='<b style="color:#dc2626">Idhu admin phone! Velai file load pannaa indha phone volunteer-aa maarum.</b> <button class="sbtn" id="velaiYes">Aamaa, maaru</button> <button class="sbtn" id="velaiNo">Vendaam</button>';
+  $('velaiYes').onclick=function(){var pv=pendingVelai;pendingVelai=null;loadVelai(pv[0],pv[1],true)};$('velaiNo').onclick=function(){pendingVelai=null;msgEl.textContent='Cancel aachu.'};return}
+  var r=new FileReader();r.onload=function(){try{var f=JSON.parse(String(r.result));if(f.kind!=='tmpt-velai')throw new Error('Idhu velai file illa');
+    if(prefs.role!=='vol'){put('tasks_admin',tasks);put('prefs_admin',{apw:prefs.apw||'',myWard:prefs.myWard||''})}
     var oldTasks=tasks;voters=f.voters||[];put('voters',voters);tasks={};(f.tasks||[]).forEach(function(t){var o=oldTasks[t.id];if(o&&o.done&&(o.doneT||0)>(t.doneT||0)){t.done=true;t.doneT=o.doneT}tasks[t.id]=t});put('tasks',tasks);
     var fa=f.areas||{};for(var k in fa)areas[k]=fa[k];put('areas',areas);
     var fm=f.marks||{};for(var id in fm)mergeMark(id,{s:fm[id].s,phone:fm[id].phone,v:fm[id].v,notes:getNotes(fm[id]),t:fm[id].t||0,by:fm[id].by||''});saveMarks();
     prefs.role='vol';prefs.vol=f.vol;prefs.pin=f.pin;prefs.apw='';prefs.tf=null;prefs.fWard='';prefs.fStreet='';put('prefs',prefs);$('vol').value=f.vol;
     index();fillSelects();fillAreas();$('hsub').textContent=f.vol+' · '+voters.length+' voters';msgEl.textContent='Vanakkam '+f.vol+'! '+(f.tasks||[]).length+' velai, '+voters.length+' voters.';show('plan')}catch(err){msgEl.textContent='Error: '+err.message}};r.readAsText(file)}
+$('toAdminIn').onchange=function(e){var file=e.target.files[0];if(!file)return;var msg=$('toAdminMsg');var r=new FileReader();msg.textContent='Load aagudhu...';
+  r.onload=async function(){try{var v=loadVoterCSV(String(r.result));if(!v.length||v.length<1000)throw new Error('Idhu full voter file illa');
+    var ta=await get('tasks_admin'),pa=await get('prefs_admin')||{};voters=v;put('voters',v);tasks=ta||{};put('tasks',tasks);
+    prefs.role='admin';prefs.tf=null;prefs.pin='';prefs.apw=pa.apw||'';prefs.myWard=pa.myWard||'';prefs.fWard='';prefs.fStreet='';put('prefs',prefs);
+    index();migrate();fillSelects();fillAreas();$('hsub').textContent=v.length.toLocaleString('en-IN')+' voters · Local body election 2027';msg.textContent='Admin mode-ku vandhaachu.';toast('Admin mode');show('dash')}catch(err){msg.textContent='Error: '+err.message}};r.readAsText(file);e.target.value=''};
 $('velaiIn').onchange=function(e){if(e.target.files[0])loadVelai(e.target.files[0],$('velaiMsg'))};
 $('velaiIn2').onchange=function(e){if(e.target.files[0])loadVelai(e.target.files[0],$('velaiMsg2'))};
 async function sha(pw){try{var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('tmpt-admin:'+pw));return 'S'+Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')}catch(e){return 'D'+pinHash('tmpt-admin:'+pw)}}
@@ -599,7 +613,7 @@ function renderStatic(){
 $('planList').addEventListener('change',function(e){var i=e.target.dataset.i;if(i==null)return;plan[i]=e.target.checked;put('plan',plan);renderStatic()});
 
 // ---------- settings ----------
-function renderSettings(){$('pwCard').classList.toggle('hide',prefs.role==='vol');$('pwOld').classList.toggle('hide',!prefs.apw);$('pwRemove').classList.toggle('hide',!prefs.apw);$('voterFileCard').classList.toggle('hide',prefs.role==='vol');var n=Object.keys(marks).length;$('dataInfo').textContent=voters.length?voters.length.toLocaleString('en-IN')+' voters load aagirukku · '+n+' marks save aagirukku.':'Voter file innum load aagala.'}
+function renderSettings(){$('toAdminCard').classList.toggle('hide',prefs.role!=='vol');$('pwCard').classList.toggle('hide',prefs.role==='vol');$('pwOld').classList.toggle('hide',!prefs.apw);$('pwRemove').classList.toggle('hide',!prefs.apw);$('voterFileCard').classList.toggle('hide',prefs.role==='vol');var n=Object.keys(marks).length;$('dataInfo').textContent=voters.length?voters.length.toLocaleString('en-IN')+' voters load aagirukku · '+n+' marks save aagirukku.':'Voter file innum load aagala.'}
 $('expBtn').onclick=function(){var ids=Object.keys(marks);if(!ids.length&&!Object.keys(areas).length&&!Object.keys(tasks).length){toast('Export panna marks illa');return}
   var vmap={};voters.forEach(function(v){vmap[v.id]=v});var tagged={};voters.forEach(function(v){if(areas[hk(v)])tagged[v.id]=1});ids=Object.keys(Object.assign({},tagged,marks));
   var lines=['id,booth_sl,status,voted,phone,note,notes_json,time,by,area,name,rel_name,ward,street,house'];ids.forEach(function(id){var m=marks[id]||{},v=vmap[id]||{};lines.push([id,v.ps||'',m.s||'',m.v?'1':'',m.phone||'',getNotes(m).map(function(n){return n.x}).join(' || '),getNotes(m).length?JSON.stringify(getNotes(m)):'',m.t||'',m.by||'',v.id?(areas[hk(v)]||''):'',v.name||'',v.rname||'',v.ward||'',v.street||'',v.house||''].map(csvCell).join(','))});
