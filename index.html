@@ -13,10 +13,10 @@
 --S:#16a34a;--N:#d97706;--A:#dc2626;--X:#64748b}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
-header{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;padding:10px 14px}
+header{position:relative;z-index:5;background:var(--ink);color:#fff;padding:10px 14px}
 header h1{margin:0;font-size:17px;font-weight:600}
 header .sub{font-size:12px;opacity:.75}
-nav{display:flex;gap:4px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:52px;z-index:4;overflow-x:auto}
+nav{display:flex;gap:4px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:4;overflow-x:auto}
 nav button{flex:1;min-width:80px;white-space:nowrap;border:0;background:none;padding:11px 8px;font-size:14px;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
 nav button.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
 main{max-width:900px;margin:0 auto;padding:12px}
@@ -110,7 +110,7 @@ select,input[type=search],input[type=text],input[type=tel],input[type=date],inpu
 </style>
 </head>
 <body>
-<header><h1>Thammampatty Campaign</h1><div class="sub" id="hsub">Local body election 2027</div></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><h1>Thammampatty Campaign</h1><div class="sub" id="hsub">Local body election 2027</div></div><button id="logoutBtn" style="background:#fff;color:#1d2330;border:0;border-radius:8px;padding:8px 12px;font-weight:600;font-size:14px;cursor:pointer">🔒 Logout</button></header>
 <nav id="nav">
   <button data-v="dash" class="on">Dashboard</button>
   <button data-v="voters">Voters</button>
@@ -575,9 +575,12 @@ $('velaiIn2').onchange=function(e){if(e.target.files[0])loadVelai(e.target.files
 async function sha(pw){try{var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('tmpt-admin:'+pw));return 'S'+Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')}catch(e){return 'D'+pinHash('tmpt-admin:'+pw)}}
 async function pwOK(pw,stored){if(!stored)return true;if(stored.charAt(0)==='S'||stored.charAt(0)==='D')return (await sha(pw))===stored;return pinHash(pw)===stored}
 var fails=0;
+function doLogout(){var vol=prefs.role==='vol',need=vol?prefs.pin:prefs.apw;if(!need){toast(vol?'PIN illa':'Mudhalla Settings-la admin password vechukonga');if(!vol)show('settings');return}$('lockIn').value='';$('lockMsg').textContent='';lockCheck();window.scrollTo(0,0)}
+var hiddenAt=0;document.addEventListener('visibilitychange',function(){if(document.hidden){hiddenAt=Date.now()}else if(hiddenAt&&Date.now()-hiddenAt>5*60*1000){var need=prefs.role==='vol'?prefs.pin:prefs.apw;if(need)lockCheck()}});
 function lockCheck(){var vol=prefs.role==='vol',need=vol?prefs.pin:prefs.apw;if(!need)return;$('lockTitle').textContent=vol?'PIN podunga':'Admin password podunga';$('lockIn').setAttribute('inputmode',vol?'numeric':'text');$('lock').classList.remove('hide');try{$('lockIn').focus()}catch(e){}}
 $('lockBtn').onclick=async function(){var vol=prefs.role==='vol',need=vol?prefs.pin:prefs.apw;if(fails>=5){$('lockMsg').textContent='Romba thappu. 30 second wait pannunga.';return}
   if(await pwOK($('lockIn').value,need)){fails=0;$('lock').classList.add('hide');$('lockIn').value='';$('lockMsg').textContent=''}else{fails++;$('lockMsg').textContent='Thappu ('+fails+'/5)';if(fails>=5)setTimeout(function(){fails=0;$('lockMsg').textContent=''},30000)}};
+$('logoutBtn').onclick=doLogout;
 $('lockForgot').onclick=function(){var b=$('lockForgot');if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Ellaa data-vum delete aagum. Sure-aa? Thirumba press';return}
   voters=[];marks={};plan={};areas={};tasks={};vols={};prefs={};['voters','marks','plan','areas','tasks','vols','prefs'].forEach(function(k){put(k,k==='voters'?null:{})});$('lock').classList.add('hide');b.dataset.c='';b.textContent='Marandhuttaen';index();renderStatic();show('dash');toast('Ellaam delete aachu. Thirumba load pannunga.')};
 $('pwSave').onclick=async function(){if(prefs.apw&&!(await pwOK($('pwOld').value,prefs.apw))){toast('Ippo irukra password thappu');return}var a=$('pwNew').value,b2=$('pwNew2').value;if(a.length<6){toast('6 ezhuthu-ku mela venum');return}if(a!==b2){toast('Rendu password-um match aagala');return}
